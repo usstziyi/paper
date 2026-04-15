@@ -1,0 +1,632 @@
+% ============================================================
+% 上海理工大学博士/硕士学位论文 LuaLaTeX 模板
+% 根据《上海理工大学博士、硕士研究生学位论文写作规范（2018年修订版）》编写
+% 使用方式：上传至 Overleaf，选择 LuaLaTeX 编译
+% 与 XeLaTeX 版相比：原生 Unicode 支持、更好的 microtype、
+%                     Lua 脚本扩展能力、fontspec 原生字体管理
+% ============================================================
+\documentclass[12pt, a4paper, openany]{ltjbook}
+
+% ============================================================
+% 日文/中文支持（LuaTeX-ja）
+% ============================================================
+\usepackage[noalphabet]{luatexja-preset}  % 预设CJK支持
+\ltjsetparameter{jacharrange={-1, -2, +3, -4, +5, +6, +7, +8}}  % CJK范围
+
+% ============================================================
+% 宏包导入
+% ============================================================
+\usepackage[top=3.5cm, bottom=2.5cm, left=3.0cm, right=3.0cm]{geometry}
+\usepackage{fancyhdr}           % 页眉页脚
+\usepackage{titlesec}           % 标题格式
+\usepackage{setspace}           % 行距控制
+\usepackage{graphicx}           % 图片
+\usepackage{booktabs}           % 三线表
+\usepackage{amsmath, amssymb}   % 数学公式
+\usepackage{enumitem}           % 列表
+\usepackage{caption}            % 图表标题
+\usepackage{tocloft}            % 目录格式
+\usepackage{notoccite}          % 参考文献编号从正文开始
+\usepackage[numbers, sort&compress]{natbib}  % 参考文献
+\usepackage{hyperref}           % 超链接（最后加载）
+\usepackage{xcolor}             % 颜色
+\usepackage{tabularx}           % 表格
+\usepackage{array}              % 表格增强
+\usepackage{calc}               % 计算
+\usepackage{fontspec}           % LuaLaTeX 原生字体管理
+\usepackage{microtype}          % LuaLaTeX 独有优势：更好的字间距
+\usepackage{luacode}            % Lua 脚本扩展
+
+% ============================================================
+% LuaLaTeX 专属：Lua 脚本扩展
+% 利用 Lua 的计算能力做字体 fallback 等高级排版
+% ============================================================
+\begin{luacode}
+-- 可在此添加 Lua 脚本进行自定义排版逻辑
+-- 例如：批量处理参考文献、动态生成图表编号等
+function us_to_ordinal(n)
+  -- 英文序数词转换（备用）
+  local s = tostring(n)
+  if s:match("[^1]1$") then return s .. "st"
+  elseif s:match("[^1]2$") then return s .. "nd"
+  elseif s:match("[^1]3$") then return s .. "rd"
+  else return s .. "th"
+  end
+end
+\end{luacode}
+
+% ============================================================
+% 字体设置（LuaLaTeX + fontspec）
+% ============================================================
+% LuaLaTeX 使用 fontspec 原生管理字体
+% 比 xeCJK 的字体处理更灵活，支持 fallback 链
+
+% 中文字体
+% Overleaf 上可用字体：Noto CJK 系列（自带）
+\setmainjfont{Noto Serif CJK SC}[
+  BoldFont    = Noto Sans CJK SC Bold,
+  ItalicFont  = Noto Serif CJK SC,
+  BoldItalicFont = Noto Sans CJK SC Bold
+]
+\setsansjfont{Noto Sans CJK SC}
+\setmonojfont{Noto Sans Mono CJK SC}
+
+% 英文字体（Times New Roman 兼容替代）
+\setmainfont{TeX Gyre Termes}[
+  BoldFont        = TeX Gyre Termes Bold,
+  ItalicFont      = TeX Gyre Termes Italic,
+  BoldItalicFont  = TeX Gyre Termes Bold Italic
+]
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+
+% 如果本地编译有 Times New Roman，可替换：
+% \setmainfont{Times New Roman}
+% 如果有 SimSun/SimHei，可替换：
+% \setmainjfont{SimSun}[BoldFont=SimHei]
+
+% ============================================================
+% 全局段落与行距
+% ============================================================
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{2em}
+\linespread{1.0}
+
+% ============================================================
+% LuaLaTeX 专属：microtype 优化
+% LuaLaTeX 对 microtype 的支持比 XeLaTeX 更好
+% ============================================================
+\UseMicrotypeSet[protrusion=basic, expansion=alltext]{lua}  % LuaLaTeX 独有
+\SetProtrusion
+  {encoding=*, family=*}
+  {1={ ,750}, 2={ ,500}, 3={ ,500}, 4={ ,500}, 5={ ,500},
+   6={ ,500}, 7={ ,600}, 8={ ,500}, 9={ ,500}, 0={ ,500}}
+
+% ============================================================
+% 页眉页脚设置
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[CE]{\ltjgetparameter{jaxfmc}{}\zihao{5}上海理工大学硕士学位论文}
+\fancyhead[CO]{\ltjgetparameter{jaxfmc}{}\zihao{5}\leftmark}
+\fancyfoot[C]{\zihao{5}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 前置页面页眉
+\fancypagestyle{frontmatter}{
+  \fancyhf{}
+  \fancyhead[CE]{\ltjgetparameter{jaxfmc}{}\zihao{5}上海理工大学硕士学位论文}
+  \fancyhead[CO]{\ltjgetparameter{jaxfmc}{}\zihao{5}\leftmark}
+  \fancyfoot[C]{\zihao{5}\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\fancypagestyle{mainmatter}{
+  \fancyhf{}
+  \fancyhead[CE]{\ltjgetparameter{jaxfmc}{}\zihao{5}上海理工大学硕士学位论文}
+  \fancyhead[CO]{\ltjgetparameter{jaxfmc}{}\zihao{5}\leftmark}
+  \fancyfoot[C]{\zihao{5}\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% 章节标记
+\renewcommand{\chaptermark}[1]{\markboth{第\thechapter 章\quad #1}{}}
+
+% ============================================================
+% 章标题：黑体小二号居中，段前24磅段后18磅
+% ============================================================
+\titleformat{\chapter}[block]
+  {\centering\bfseries\zihao{-2}}
+  {第\thechapter 章}
+  {1em}
+  {}
+\titlespacing*{\chapter}{0pt}{24pt}{18pt}
+
+% ============================================================
+% 一级节标题：加粗宋体四号居左，段前24磅段后6磅
+% ============================================================
+\titleformat{\section}[block]
+  {\zihao{4}\bfseries}
+  {\thesection}
+  {1em}
+  {}
+\titlespacing*{\section}{0pt}{24pt}{6pt}
+
+% ============================================================
+% 二级节标题：加粗宋体小四号居左，段前12磅段后6磅
+% ============================================================
+\titleformat{\subsection}[block]
+  {\zihao{-4}\bfseries}
+  {\thesubsection}
+  {1em}
+  {}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+
+% ============================================================
+% 图标题：宋体小四号居中，图下方段前6磅段后12磅
+% ============================================================
+\DeclareCaptionFont{songtiCaption}{\zihao{-4}}
+\captionsetup[figure]{
+  font = songtiCaption,
+  labelfont = bf,
+  format = plain,
+  justification = centering,
+  skip = 6pt,
+  belowskip = 12pt
+}
+\renewcommand{\figurename}{图}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+
+% ============================================================
+% 表标题：宋体小四号居中，表上方段前12磅段后6磅
+% ============================================================
+\captionsetup[table]{
+  font = songtiCaption,
+  labelfont = bf,
+  format = plain,
+  justification = centering,
+  position = top,
+  skip = 12pt,
+  aboveskip = 12pt
+}
+\renewcommand{\tablename}{表}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+% ============================================================
+% 目录格式
+% ============================================================
+\renewcommand{\contentsname}{目\quad 录}
+\renewcommand{\cftchapfont}{\zihao{-4}}
+\renewcommand{\cftchappagefont}{\zihao{-4}}
+\renewcommand{\cftsecfont}{\zihao{-4}}
+\renewcommand{\cftsecindent}{2em}
+\renewcommand{\cftsubsecfont}{\zihao{-4}}
+\renewcommand{\cftsubsecindent}{4em}
+\setlength{\cftbeforechapskip}{0pt}
+\setlength{\cftbeforesecskip}{0pt}
+\setlength{\cftbeforesubsecskip}{0pt}
+
+% ============================================================
+% 自定义命令
+% ============================================================
+
+% === 中文摘要 ===
+\newcommand{\cnabstractname}{摘\quad 要}
+\newenvironment{cnabstract}{%
+  \chapter*{\cnabstractname}
+  \markboth{\cnabstractname}{}
+  \addcontentsline{toc}{chapter}{中文摘要}
+  \zihao{-4}\setlength{\parindent}{2em}
+}{}
+
+\newcommand{\cnkeywords}[1]{%
+  \vspace{12pt}
+  \noindent{\bfseries\zihao{4}关键词：}{\zihao{4}\bfseries #1}
+}
+
+% === 英文摘要 ===
+\newcommand{\enabstractname}{ABSTRACT}
+\newenvironment{enabstract}{%
+  \chapter*{\enabstractname}
+  \markboth{\enabstractname}{}
+  \addcontentsline{toc}{chapter}{ABSTRACT}
+  \zihao{-4}\setlength{\parindent}{2em}
+}{}
+
+\newcommand{\enkeywords}[1]{%
+  \vspace{12pt}
+  \noindent{\zihao{4}\bfseries Key Words: }{\zihao{4}\bfseries #1}
+}
+
+% === 参考文献条目间距 ===
+\setlength{\bibsep}{0pt}
+
+% ============================================================
+% LuaLaTeX 专属：用 Lua 脚本生成统计信息
+% ============================================================
+\begin{luacode}
+-- 在编译时统计论文章节、图表数量（备用功能）
+function thesis_stats()
+  local ch = status.get_job_statistics()
+  tex.print("\\texttt{LuaLaTeX engine: " .. status.banner .. "}")
+end
+\end{luacode}
+
+\newcommand{\printEngineInfo}{\directlua{thesis_stats()}}
+
+% ============================================================
+% 超链接设置
+% ============================================================
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = black,
+  citecolor  = blue,
+  urlcolor   = blue,
+  bookmarksopen = true,
+  pdfauthor  = {作者姓名},
+  pdftitle   = {论文题目},
+  pdfsubject = {上海理工大学学位论文}
+}
+
+% ============================================================
+% 开始文档
+% ============================================================
+\begin{document}
+
+% ---------- 封面信息 ----------
+\newcommand{\thesistitle}{基于深度学习的××××研究}
+\newcommand{\thesistitleEN}{Research on ×××× Based on Deep Learning}
+\newcommand{\thesisauthor}{张三}
+\newcommand{\thesisadvisor}{李四\quad 教授}
+\newcommand{\thesisdegree}{工学硕士}
+\newcommand{\thesismajor}{计算机科学与技术}
+\newcommand{\thesisfield}{人工智能}
+\newcommand{\thesisdate}{2026年4月}
+
+% ============================================================
+% 封面
+% ============================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\vspace*{3cm}
+\begin{center}
+  {\bfseries\zihao{1} 上海理工大学}\\[0.8cm]
+  {\bfseries\zihao{2} 硕士学位论文}\\[2.5cm]
+
+  {\bfseries\zihao{2} \thesistitle}\\[1.5cm]
+
+  {\zihao{3} \thesistitleEN}\\[4cm]
+
+  \begin{tabular}{rl}
+    {\zihao{4} 作\quad 者：} & {\zihao{4} \thesisauthor} \\[0.5cm]
+    {\zihao{4} 指导教师：} & {\zihao{4} \thesisadvisor} \\[0.5cm]
+    {\zihao{4} 学位类别：} & {\zihao{4} \thesisdegree} \\[0.5cm]
+    {\zihao{4} 学科专业：} & {\zihao{4} \thesismajor} \\[0.5cm]
+    {\zihao{4} 研究方向：} & {\zihao{4} \thesisfield} \\[0.5cm]
+    {\zihao{4} 培养单位：} & {\zihao{4} ×××学院} \\[0.5cm]
+  \end{tabular}
+
+  \vfill
+  {\zihao{3} \thesisdate}
+\end{center}
+\end{titlepage}
+
+% ============================================================
+% 版权使用授权书及声明（占位）
+% ============================================================
+\newpage
+\thispagestyle{empty}
+\vspace*{2cm}
+\begin{center}
+  {\bfseries\zihao{2} 学位论文版权使用授权书及声明}
+\end{center}
+\vspace{1cm}
+\noindent
+（此处放置学校统一的学位论文版权使用授权书及声明，可从研究生院网站下载。）
+
+\vspace{3cm}
+\noindent
+{\zihao{4}
+论文作者签名：\rule{4cm}{0.4pt} \hspace{2cm} 日期：\rule{4cm}{0.4pt} \\[2cm]
+导师签名：\rule{4cm}{0.4pt} \hspace{2cm} 日期：\rule{4cm}{0.4pt}
+}
+
+% ============================================================
+% 前置部分（小写罗马数字页码）
+% ============================================================
+\frontmatter
+\pagestyle{frontmatter}
+
+% ---------- 中文摘要 ----------
+\begin{cnabstract}
+在此撰写中文摘要。摘要应包括研究的目的、意义；论文的主要内容（作者独立进行的研究工作的概括性叙述）；获得的成果和结论。摘要字数应不少于500字。
+
+（示例：本研究针对××××的问题，采用深度学习方法，通过××××实验与分析，得出了××××结论。本文的主要贡献在于××××。）
+
+（请替换以上示例文字为您的实际摘要内容。）
+\end{cnabstract}
+\cnkeywords{关键词1\quad 关键词2\quad 关键词3\quad 关键词4}
+
+% ---------- 英文摘要 ----------
+\newpage
+\begin{enabstract}
+Write your English abstract here. The abstract should include the purpose and significance of the research, a summary of the main content and independent research work, and the results and conclusions obtained. The abstract should contain no fewer than 500 words.
+
+(Replace this placeholder text with your actual English abstract.)
+\end{enabstract}
+\enkeywords{keyword1, keyword2, keyword3, keyword4}
+
+% ---------- 目录 ----------
+\newpage
+\tableofcontents
+
+% ============================================================
+% 正文部分
+% ============================================================
+\mainmatter
+\pagestyle{mainmatter}
+\setcounter{page}{1}
+
+% ========== 第一章 引言 ==========
+\chapter{引\quad 言}
+
+\section{研究背景与意义}
+
+在此撰写研究背景与意义。应主要论述论文的选题意义、国内外研究现状、本论文要解决的问题、论文运用的主要理论与方法、基本思路及论文的结构等。
+
+\subsection{国内外研究现状}
+
+在此撰写国内外研究现状。引用文献时使用上标编号，例如：目前，LaCrO\textsubscript{3}的制备工艺主要有固态反应法\cite{ref1}、共沉淀法\cite{ref2}、溶胶-凝胶法\cite{ref3}等。
+
+（请在此处继续撰写相关内容。正文用宋体小四号字，行距固定值20磅。）
+
+\subsection{研究目的与内容}
+
+在此撰写研究目的与主要内容。
+
+\section{研究方法与技术路线}
+
+在此撰写研究方法与技术路线。
+
+\section{论文组织结构}
+
+在此说明论文的组织结构，各章内容安排。
+
+% ========== 第二章 相关理论与技术 ==========
+\chapter{相关理论与技术}
+
+\section{××××理论}
+
+在此撰写相关理论基础。
+
+\subsection{××××}
+
+在此撰写具体内容。
+
+\section{××××技术}
+
+在此撰写相关技术。
+
+% === 图表示例 ===
+\begin{figure}[htbp]
+  \centering
+  % \includegraphics[width=0.8\textwidth]{figures/example.png}
+  \fbox{\parbox{0.7\textwidth}{\centering\vspace{3cm}在此放置图片\vspace{3cm}}}
+  \caption{××××示意图}
+  \label{fig:example}
+\end{figure}
+
+如图~\ref{fig:example}~所示，××××。
+
+% === 三线表示例 ===
+\begin{table}[htbp]
+  \centering
+  \caption{××××数据表}
+  \label{tab:example}
+  \zihao{5}
+  \begin{tabular}{cccc}
+    \toprule
+    序号 & 指标名称 & 数值 & 单位 \\
+    \midrule
+    1 & ××× & ×× & ×× \\
+    2 & ××× & ×× & ×× \\
+    3 & ××× & ×× & ×× \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+如表~\ref{tab:example}~所示，××××。
+
+% === 数学表达式 ===
+在此给出数学表达式示例：
+\begin{equation}
+  E = mc^2
+  \label{eq:einstein}
+\end{equation}
+
+根据式~(\ref{eq:einstein})，××××。
+
+% ========== 第三章 ×××× ==========
+\chapter{××××方法/系统设计}
+
+\section{总体设计}
+
+在此撰写总体设计思路。
+
+\section{××××模块设计}
+
+在此撰写各模块详细设计。
+
+\subsection{××××}
+
+在此撰写具体内容。
+
+% ========== 第四章 实验与结果分析 ==========
+\chapter{实验与结果分析}
+
+\section{实验环境与数据}
+
+在此撰写实验环境配置和数据集描述。
+
+\section{实验方案}
+
+在此撰写实验方案设计。
+
+\section{实验结果与分析}
+
+在此撰写实验结果和分析讨论。
+
+\subsection{××××实验}
+
+在此撰写具体实验。
+
+% ========== 第五章 总结与展望 ==========
+\chapter{总结与展望}
+
+\section{主要研究工作总结}
+
+在此总结本文完成的主要研究工作。
+
+\section{主要创新点}
+
+在此列出本文的创新之处。
+
+\section{研究不足与展望}
+
+在此分析研究的局限性和未来研究方向。
+
+% ============================================================
+% 参考文献
+% ============================================================
+\backmatter
+
+\chaptermark{参考文献}
+\addcontentsline{toc}{chapter}{参考文献}
+
+% 方式一：使用 .bib 文件（推荐）
+% \bibliography{references}
+
+% 方式二：直接列出
+\begin{thebibliography}{99}
+\zihao{-4}
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+
+\bibitem{ref1}
+XXX, XXX, XXX.
+真空预冷过程中真空泵的延迟开启现象研究[J].
+制冷学报, 2011, (2):45-49.
+
+\bibitem{ref2}
+Brauner N.
+Vapor absorption into falling film[J].
+ASME J, 1991, 34(3): 76-82.
+
+\bibitem{ref3}
+XXX.
+出版集团研究[M].
+北京:中国书籍出版社, 2000:179-193.
+
+\bibitem{ref4}
+Baehr H D.
+Heat and mass transfer[M].
+Berlin: Springer-Verlag, 1994: 221.
+
+\bibitem{ref5}
+XXX 等.
+吸收式捕水器: 中国, 201210457660[P].
+2013-02-06.
+
+\bibitem{ref6}
+GB/T7714---2015.
+信息与文献 参考文献著录规则[S].
+北京:中国标准出版社, 2015.
+
+\bibitem{ref7}
+XXX.
+间断动力系统的随机扰动及其在守恒律方程中的应用[D].
+北京:北京大学数学学院, 1998.
+
+\bibitem{ref8}
+Online Computer Library Center, Inc.
+History of OCLC[EB/OL].
+[2000-01-08]. http://www.oclc.org/about/history/default.htm.
+
+\bibitem{ref9}
+（请替换为您的实际参考文献）
+
+\end{thebibliography}
+
+% ============================================================
+% 附录
+% ============================================================
+\appendix
+\chapter{××××××}
+
+在此撰写附录内容。附录格式与正文相同。
+
+附录中的图、表、数学表达式另行编序号，冠以附录序号，如图~\ref{fig:app1}、表~\ref{tab:app1}。
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox{0.5\textwidth}{\centering\vspace{2cm}附录图片\vspace{2cm}}}
+  \caption{附录A中的示意图}
+  \label{fig:app1}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{附录A中的数据表}
+  \label{tab:app1}
+  \zihao{5}
+  \begin{tabular}{ccc}
+    \toprule
+    项目 & 数值 & 说明 \\
+    \midrule
+    ××× & ×× & ××× \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ============================================================
+% 在读期间成果
+% ============================================================
+\chaptermark{在读期间公开发表的论文和承担科研项目及取得成果}
+\addcontentsline{toc}{chapter}{在读期间公开发表的论文和承担科研项目及取得成果}
+\chapter*{在读期间公开发表的论文和承担科研项目及取得成果}
+
+{\bfseries\zihao{4} 一、论文}
+
+\begin{enumerate}[leftmargin=2em, itemsep=0pt]
+  \item XXX 等. 文章标题[J]. 刊名, 出版年, 卷(期):页码.
+  \item XXX, XXX. 文章标题[J]. 刊名, 出版年, 卷(期):页码.
+\end{enumerate}
+
+{\bfseries\zihao{4} 二、专利}
+
+\begin{enumerate}[leftmargin=2em, itemsep=0pt]
+  \item 发明专利: 专利名称, 专利号: xxxxx, 第x发明人.
+\end{enumerate}
+
+{\bfseries\zihao{4} 三、科研项目}
+
+\begin{enumerate}[leftmargin=2em, itemsep=0pt]
+  \item 项目来源, 项目名称(项目编号), 起止时间, 参与级别.
+\end{enumerate}
+
+% ============================================================
+% 致谢
+% ============================================================
+\chaptermark{致谢}
+\addcontentsline{toc}{chapter}{致谢}
+\chapter*{致\quad 谢}
+
+在此撰写致谢内容。主要向导师等对论文工作有直接贡献和帮助的人士、单位表示感谢。致谢应谦虚诚恳，实事求是，切忌浮夸及庸俗。致谢篇幅一般不超过一页。
+
+（请替换为您的实际致谢内容。）
+
+\end{document}
